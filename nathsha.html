@@ -1,0 +1,355 @@
+﻿<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* මුළු පිටුවම ලොක් වී Blur වීම සඳහා */
+        body.locked {
+            filter: blur(15px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Profile Card Container */
+        .card {
+            background-color: #212121;
+            width: 350px;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 15px 15px 30px #0f0f0f, -15px -15px 30px #333333;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Profile Image Wrapper */
+        .image-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            background: #212121;
+            box-shadow: inset 8px 8px 15px #0f0f0f, inset -8px -8px 15px #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: filter 0.3s ease;
+        }
+
+        /* Blur Effect on Click */
+        .image-container img.blurred {
+            filter: blur(8px);
+        }
+
+        .card h2 {
+            color: #ffffff;
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        .card .age {
+            color: #f39c12;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Packages */
+        .package {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+        }
+
+        .order-btn {
+            background-color: #f39c12;
+            color: #1e1e1e;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .order-btn:hover {
+            background-color: #e67e22;
+        }
+
+        /* Modal / Screen Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        /* Countdown Box & Bank Box */
+        .countdown-box, .video-interface, .bank-box {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .countdown-box h3, .bank-box h3 {
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .bank-details {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .action-btn {
+            background-color: #f39c12;
+            color: #1e1e1e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 15px;
+        }
+
+        .action-btn:hover {
+            background-color: #e67e22;
+        }
+
+        #timer {
+            font-size: 48px;
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        /* Video Call Interface */
+        .video-interface {
+            display: none;
+            max-width: 600px;
+            height: 80vh;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-screen {
+            flex-grow: 1;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .call-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .end-call-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* ලොක් වූ පසු පණිවිඩය පෙන්වීමට */
+        .lock-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #e74c3c;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Profile Card -->
+    <div class="card" id="profileCard">
+        <div class="image-container" onclick="toggleBlur(this)">
+            <img src="https://i.postimg.cc/8C60KKk0/Screenshot-20261029-125757-2.jpg" alt="Profile Photo" id="profileImg">
+        </div>
+        <h2>Nathasha</h2>
+        <div class="age">21 OLD</div>
+
+        <div class="package">
+            <span>1 hour - 2200 rupees</span>
+            <button class="order-btn" onclick="startOrder(2200)">Order</button>
+        </div>
+        <div class="package">
+            <span>30 min - 1200 rupees</span>
+            <button class="order-btn" onclick="startOrder(1200)">Order</button>
+        </div>
+        <div class="package">
+            <span>15 min - 800 rupees</span>
+            <button class="order-btn" onclick="startOrder(800)">Order</button>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay">
+        <!-- Bank Details Box -->
+        <div class="bank-box" id="bankBox">
+            <h3>ගෙවීම් විස්තර</h3>
+            <div class="bank-details">
+                <p><strong>ගෙවිය යුතු මුදල:</strong> <span id="displayAmount">0</span>/=</p>
+                <p><strong>ගිණුම් අංකය:</strong> 96673336</p>
+                <p><strong>නම:</strong> KHY RANMI</p>
+                <p><strong>බැංකුව:</strong> BOC Bank</p>
+                <hr style="border: 0.5px solid #444; margin: 10px 0;">
+                <p style="font-size: 13px; color: #ccc;">BOC බැංකුවට මුදල් ගෙවා, එම ස්ලිප් එක <strong>0724436874</strong> අංකයට WhatsApp හරහා එවන්න. ඉන්පසු ලැබෙන කෝඩ් එක ලබා දෙන්න.</p>
+            </div>
+            <button class="action-btn" onclick="askForCode()">කෝඩ් එක ඇතුළත් කරන්න</button>
+        </div>
+
+        <!-- Countdown Screen -->
+        <div class="countdown-box" id="countdownBox" style="display: none;">
+            <h3>සම්බන්ධ වෙමින් පවතී...</h3>
+            <div id="timer">60</div>
+            <p style="margin-top: 15px; color: #aaa;">තත්පර කිහිපයකින් වීඩියෝ ඇමතුම ආරම්භ වේ.</p>
+        </div>
+
+        <!-- Video Call Interface -->
+        <div class="video-interface" id="videoInterface">
+            <h3 style="margin-bottom: 15px;">Live Video Call</h3>
+            <div class="video-screen">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500" alt="Video Call Screen">
+            </div>
+            <div class="call-controls">
+                <button class="end-call-btn" onclick="endCall()">ඇමතුම විසන්ධි කරන්න</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Website Locked Notification -->
+    <div class="lock-message" id="lockMessage">වැරදි කෝඩ් එකක් ඇතුළත් කිරීම නිසා වෙබ් අඩවිය අවහිර කර ඇත!</div>
+
+    <script>
+        function toggleBlur(element) {
+            const img = element.querySelector('img');
+            img.classList.toggle('blurred');
+        }
+
+        let selectedPrice = 0;
+
+        // Order බටන් එක එබූ විට අදාල ගණන පෙන්වා බැංකු විස්තර පෙන්නයි
+        function startOrder(price) {
+            selectedPrice = price;
+            document.getElementById('displayAmount').textContent = price;
+            
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('bankBox').style.display = 'block';
+            document.getElementById('countdownBox').style.display = 'none';
+            document.getElementById('videoInterface').style.display = 'none';
+        }
+
+        // කෝඩ් එක ඉල්ලන කොටස
+        function askForCode() {
+            let userCode = prompt("කරුණාකර WhatsApp මඟින් ලබාගත් කෝඩ් එක ඇතුළත් කරන්න:");
+            
+            if (userCode === "THURULIYA88") {
+                document.getElementById('bankBox').style.display = 'none';
+                document.getElementById('countdownBox').style.display = 'block';
+                
+                let timeLeft = 60;
+                let timerDisplay = document.getElementById('timer');
+                timerDisplay.textContent = timeLeft;
+
+                let countdownInterval = setInterval(function() {
+                    timeLeft--;
+                    timerDisplay.textContent = timeLeft;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        document.getElementById('countdownBox').style.display = 'none';
+                        document.getElementById('videoInterface').style.display = 'flex';
+                    }
+                }, 1000);
+
+            } else if (userCode !== null) {
+                // වැරදි කෝඩ් එකක් ගැහුවොත් වෙබ් අඩවිය Blur කර ලොක් කිරීම
+                document.getElementById('overlay').style.display = 'none';
+                document.body.classList.add('locked');
+                document.getElementById('lockMessage').style.display = 'block';
+            }
+        }
+
+        function endCall() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('videoInterface').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
